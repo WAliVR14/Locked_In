@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
-    title="LockedIn - Personal ERP & Telemetry API",
+    title="Locked_In - Personal ERP & Telemetry API",
     description="Centralized API for finance, inventory, physical training, goals, and personal CRM.",
     version="0.1.0",
 )
@@ -21,6 +21,6 @@ app.add_middleware(
 def health_check():
     return {
         "status": "online",
-        "system": "LockedIn Core",
+        "system": "Locked_In Core",
         "version": "0.1.0"
     }

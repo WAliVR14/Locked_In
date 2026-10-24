@@ -1,4 +1,4 @@
-name: LockedIn CI Pipeline
+name: Locked_In CI Pipeline
 
 on:
   push:
