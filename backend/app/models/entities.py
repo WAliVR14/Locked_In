@@ -1,6 +1,6 @@
 # backend/app/models/entities.py
 from typing import Optional
-from datetime import datetime, date
+from datetime import datetime
 from sqlmodel import SQLModel, Field
 
 class User(SQLModel, table=True):
