@@ -1,11 +1,21 @@
 # backend/app/main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
+from app.core.database import init_db
+from app.api.v1.endpoints import auth
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Initialize the database when the application starts.
+    init_db()
+    yield
 
 app = FastAPI(
     title="Locked_In - Personal ERP & Telemetry API",
     description="Centralized API for finance, inventory, physical training, goals, and personal CRM.",
     version="0.1.0",
+    lifespan=lifespan,
 )
 
 # Allow connection with the local and production frontend.
@@ -24,3 +34,5 @@ def health_check():
         "system": "Locked_In Core",
         "version": "0.1.0"
     }
+
+app.include_router(auth.router)
