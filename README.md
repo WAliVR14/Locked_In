@@ -3,6 +3,7 @@
 
 Unified system for life management: finances, inventory, physical training, and goals.
 
+## Database Architecture
 ```mermaid
 erDiagram
     USERS ||--o{ ACCOUNTS : owns
