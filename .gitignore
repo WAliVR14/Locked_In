@@ -1,13 +1,18 @@
 # Ignore virtual environments (they are very heavy, and everyone creates their own)
 venv/
 env/
+.venv/
 
 # Ignore Python temporary files
 __pycache__/
 *.pyc
+.pytest_cache/
+.ruff_cache/
 
 # Ignore environment variables (YOUR PASSWORDS GO HERE; THEY ARE NEVER UPLOADED)
 .env
+*.env
+!.env.example
 
 # Ignore local databases
 *.db
@@ -15,3 +20,6 @@ __pycache__/
 
 # Ignore heavy frontend libraries
 node_modules/
+dist/
+dist-ssr/
+*.local

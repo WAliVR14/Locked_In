@@ -17,7 +17,7 @@ export default function Login({ onLoginSuccess }) {
       formData.append('username', email);
       formData.append('password', password);
       const { data } = await api.post('/auth/login', formData);
-      localStorage.setItem('locked_in_token', data.access_token);
+      localStorage.setItem('locked_token', data.access_token);
       onLoginSuccess();
     } catch {
       setError('Invalid credentials. Check your email and password.');
@@ -31,7 +31,7 @@ export default function Login({ onLoginSuccess }) {
     setLoading(true);
     try {
       const { data } = await api.post('/auth/demo-login');
-      localStorage.setItem('locked_in_token', data.access_token);
+      localStorage.setItem('locked_token', data.access_token);
       onLoginSuccess();
     } catch {
       setError('Could not connect to the backend server (verify that it is running on port 8000).');
