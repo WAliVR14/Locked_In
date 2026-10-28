@@ -8,14 +8,12 @@ function App() {
   const [user, setUser] = useState(null);
   const [summary, setSummary] = useState(null);
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => Boolean(localStorage.getItem('locked_token')));
 
   const fetchSessionData = useCallback(async () => {
     const token = localStorage.getItem('locked_token');
-    if (!token) {
-      setLoading(false);
-      return;
-    }
+    if (!token) return;
+
     try {
       const [meRes, sumRes] = await Promise.all([
         api.get('/auth/me'),
@@ -32,8 +30,33 @@ function App() {
   }, []);
 
   useEffect(() => {
-    fetchSessionData();
-  }, [fetchSessionData]);
+    const token = localStorage.getItem('locked_token');
+    if (!token) return;
+
+    let isMounted = true;
+    Promise.all([api.get('/auth/me'), api.get('/system/summary')])
+      .then(([meRes, sumRes]) => {
+        if (isMounted) {
+          setUser(meRes.data);
+          setSummary(sumRes.data);
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          localStorage.removeItem('locked_token');
+          setUser(null);
+        }
+      })
+      .finally(() => {
+        if (isMounted) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('locked_token');
@@ -75,10 +98,10 @@ function App() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
             <div className="flex items-center justify-between text-slate-400 text-sm mb-2">
-              <span>Estado API</span>
+              <span>API Status</span>
               <Activity className="w-4 h-4 text-emerald-400" />
             </div>
-            <p className="text-xl font-bold text-emerald-400">Online (JWT Activo)</p>
+            <p className="text-xl font-bold text-emerald-400">Online (JWT Active)</p>
           </div>
 
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
