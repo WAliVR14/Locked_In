@@ -8,7 +8,7 @@ from sqlmodel import Session, select, func
 from app.core.database import init_db, get_session
 from app.core.security import get_current_user
 from app.models.entities import User, Account, PantryItem
-from app.api.v1.endpoints import auth
+from app.api.v1.endpoints import auth, finance
 
 
 @asynccontextmanager
@@ -44,6 +44,7 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 # Register authentication routes (/api/v1/auth/...)
 app.include_router(auth.router)
+app.include_router(finance.router)
 
 
 @app.get("/api/v1/health", tags=["System"])
