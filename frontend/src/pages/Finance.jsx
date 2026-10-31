@@ -8,8 +8,14 @@ import {
   ArrowLeftRight,
   TrendingUp,
   CreditCard,
-  X,
 } from 'lucide-react';
+import {
+  RetroCard,
+  RetroButton,
+  RetroBadge,
+  OrnamentalDivider,
+  RetroModal,
+} from '../components/ui/RetroUI';
 
 const QUICK_CATEGORIES = ['Food', 'Transport', 'Tech / 3D', 'Gym', 'Investments', 'Fixed'];
 
@@ -143,160 +149,172 @@ export default function Finance({ onDataChange }) {
 
   const budgetBarColor =
     budgetPercent >= 90
-      ? 'bg-red-500'
+      ? 'bg-semantic-danger'
       : budgetPercent >= 75
-      ? 'bg-amber-500'
-      : 'bg-emerald-500';
+      ? 'bg-cempasuchil'
+      : 'bg-nopal';
 
   if (loading) {
-    return <div className="text-slate-400 py-8">Loading Financial Telemetry...</div>;
+    return (
+      <div className="text-tinta-muted font-display py-8 font-bold">
+        Loading Financial Telemetry...
+      </div>
+    );
   }
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 pb-20">
       {/* Header & Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-2 border-tinta/20 pb-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold">Financial Engine</h1>
-          <p className="text-slate-400 text-sm">
+          <h1 className="text-2xl md:text-3xl font-extrabold font-display text-tinta">
+            Financial Engine
+          </h1>
+          <p className="text-tinta-muted text-sm">
             Real-time liquidity, monthly budget execution, and ACID ledger.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowAccModal(true)}
-            className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3.5 py-2 rounded-xl text-sm font-medium flex items-center gap-1.5 border border-slate-700 transition"
-          >
-            <CreditCard className="w-4 h-4 text-emerald-400" /> + Account
-          </button>
+        <div className="flex items-center gap-2.5">
+          <RetroButton onClick={() => setShowAccModal(true)} variant="secondary">
+            <CreditCard className="w-4 h-4 text-nopal" /> + Account
+          </RetroButton>
           {overview.accounts.length >= 2 && (
-            <button
+            <RetroButton
               onClick={() => {
                 setFromAccId(String(overview.accounts[0].id));
                 setToAccId(String(overview.accounts[1].id));
                 setShowTransferModal(true);
               }}
-              className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3.5 py-2 rounded-xl text-sm font-medium flex items-center gap-1.5 border border-slate-700 transition"
+              variant="secondary"
             >
-              <ArrowLeftRight className="w-4 h-4 text-sky-400" /> Transfer
-            </button>
+              <ArrowLeftRight className="w-4 h-4 text-cempasuchil" /> Transfer
+            </RetroButton>
           )}
         </div>
       </div>
 
       {/* Top KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
-          <div className="flex items-center justify-between text-slate-400 text-sm mb-1">
+        <RetroCard variant="highlighted">
+          <div className="flex items-center justify-between text-tinta-muted text-xs font-bold uppercase tracking-wider mb-1">
             <span>Total Liquidity</span>
-            <Wallet className="w-4 h-4 text-emerald-400" />
+            <Wallet className="w-4 h-4 text-nopal" />
           </div>
-          <p className="text-2xl font-bold text-white">
+          <p className="text-2xl font-extrabold font-display text-tinta">
             ${overview.total_balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </p>
-        </div>
+        </RetroCard>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
-          <div className="flex items-center justify-between text-slate-400 text-sm mb-1">
+        <RetroCard>
+          <div className="flex items-center justify-between text-tinta-muted text-xs font-bold uppercase tracking-wider mb-1">
             <span>Monthly Income</span>
-            <ArrowUpRight className="w-4 h-4 text-emerald-400" />
+            <ArrowUpRight className="w-4 h-4 text-nopal" />
           </div>
-          <p className="text-2xl font-bold text-emerald-400">
+          <p className="text-2xl font-extrabold font-display text-nopal">
             +${overview.monthly_income.toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </p>
-        </div>
+        </RetroCard>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
-          <div className="flex items-center justify-between text-slate-400 text-sm mb-1">
+        <RetroCard>
+          <div className="flex items-center justify-between text-tinta-muted text-xs font-bold uppercase tracking-wider mb-1">
             <span>Monthly Burn (Expenses)</span>
-            <ArrowDownRight className="w-4 h-4 text-rose-400" />
+            <ArrowDownRight className="w-4 h-4 text-semantic-danger" />
           </div>
-          <p className="text-2xl font-bold text-rose-400">
+          <p className="text-2xl font-extrabold font-display text-semantic-danger">
             -${overview.monthly_expenses.toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </p>
-        </div>
+        </RetroCard>
       </div>
 
       {/* Monthly Budget Bar */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
-        <div className="flex items-center justify-between text-sm">
+      <RetroCard className="space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
           <div>
-            <span className="font-semibold text-white">Monthly Budget Execution</span>
-            <span className="text-slate-400 ml-2">({budgetPercent}% used)</span>
+            <span className="font-bold font-display text-base text-tinta">
+              Monthly Budget Execution
+            </span>
+            <span className="text-tinta-muted font-semibold ml-2">
+              ({budgetPercent}% used)
+            </span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-400">Cap: $</span>
+            <span className="text-xs font-bold uppercase text-tinta-muted">Cap: $</span>
             <input
               type="number"
               value={budgetLimit}
               onChange={(e) => handleBudgetChange(e.target.value)}
-              className="w-24 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-xs text-right text-white"
+              className="w-28 bg-crema border-2 border-tinta rounded-lg px-2.5 py-1 text-xs font-bold text-right text-tinta focus:outline-none focus:ring-2 focus:ring-nopal"
             />
           </div>
         </div>
-        <div className="w-full h-3 bg-slate-800 rounded-full overflow-hidden">
+        <div className="w-full h-4 bg-crema-sunken border-2 border-tinta rounded-full overflow-hidden p-0.5">
           <div
-            className={`h-full transition-all duration-300 ${budgetBarColor}`}
+            className={`h-full rounded-full transition-all duration-300 ${budgetBarColor}`}
             style={{ width: `${budgetPercent}%` }}
           />
         </div>
-      </div>
+      </RetroCard>
+
+      <OrnamentalDivider label="Active Accounts & Vaults" />
 
       {/* Accounts Grid */}
       <div>
-        <h2 className="text-lg font-semibold mb-3">Active Accounts</h2>
         {overview.accounts.length === 0 ? (
-          <div className="bg-slate-900/50 border border-dashed border-slate-800 rounded-2xl p-8 text-center">
-            <p className="text-slate-400 text-sm mb-3">
-              No accounts created yet. Create your first account (e.g., Debit, Cash, GBM+) to start logging transactions.
+          <RetroCard variant="dashed" className="p-8 text-center">
+            <p className="text-tinta-muted text-sm mb-4 font-medium">
+              No accounts created yet. Create your first account (e.g., BBVA, Nu, Cash, GBM+) to start logging transactions.
             </p>
-            <button
-              onClick={() => setShowAccModal(true)}
-              className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-sm font-semibold transition"
-            >
+            <RetroButton onClick={() => setShowAccModal(true)} variant="primary">
               + Create First Account
-            </button>
-          </div>
+            </RetroButton>
+          </RetroCard>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {overview.accounts.map((acc) => (
-              <div
-                key={acc.id}
-                className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between"
-              >
+              <RetroCard key={acc.id} className="flex flex-col justify-between">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="font-semibold text-slate-200">{acc.name}</span>
-                  <span className="text-[11px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-800 text-emerald-400">
-                    {acc.type}
+                  <span className="font-bold font-display text-base text-tinta">
+                    {acc.name}
                   </span>
+                  <RetroBadge variant="nopal" className="uppercase">
+                    {acc.type}
+                  </RetroBadge>
                 </div>
-                <p className="text-xl font-bold text-white">
+                <p className="text-xl font-extrabold font-display text-tinta">
                   ${acc.balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}{' '}
-                  <span className="text-xs text-slate-500 font-normal">{acc.currency}</span>
+                  <span className="text-xs text-tinta-muted font-sans font-semibold">
+                    {acc.currency}
+                  </span>
                 </p>
-              </div>
+              </RetroCard>
             ))}
           </div>
         )}
       </div>
 
+      <OrnamentalDivider label="Recent Ledger Activity" />
+
       {/* Recent Transactions List */}
       <div>
-        <h2 className="text-lg font-semibold mb-3">Recent Ledger Activity</h2>
         {overview.recent_transactions.length === 0 ? (
-          <p className="text-slate-500 text-sm">No transactions recorded yet.</p>
+          <p className="text-tinta-muted text-sm text-center py-4 font-medium">
+            No transactions recorded yet.
+          </p>
         ) : (
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl divide-y divide-slate-800">
+          <RetroCard className="p-0 overflow-hidden divide-y-2 divide-tinta/15">
             {overview.recent_transactions.map((tx) => {
               const isExpense = tx.type === 'expense' || tx.type === 'transfer_out';
               return (
-                <div key={tx.id} className="p-4 flex items-center justify-between">
+                <div
+                  key={tx.id}
+                  className="p-4 flex items-center justify-between hover:bg-maiz-soft/40 transition"
+                >
                   <div className="flex items-center gap-3">
                     <div
-                      className={`p-2 rounded-xl ${
+                      className={`p-2 rounded-xl border border-tinta ${
                         isExpense
-                          ? 'bg-rose-500/10 text-rose-400'
-                          : 'bg-emerald-500/10 text-emerald-400'
+                          ? 'bg-semantic-danger/15 text-semantic-danger'
+                          : 'bg-nopal/15 text-nopal'
                       }`}
                     >
                       {isExpense ? (
@@ -306,15 +324,17 @@ export default function Finance({ onDataChange }) {
                       )}
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-slate-200">
+                      <p className="text-sm font-bold text-tinta">
                         {tx.description || tx.category}
                       </p>
-                      <span className="text-xs text-slate-500">{tx.category}</span>
+                      <span className="text-xs font-medium text-tinta-muted">
+                        {tx.category}
+                      </span>
                     </div>
                   </div>
                   <span
-                    className={`font-semibold text-sm ${
-                      isExpense ? 'text-rose-400' : 'text-emerald-400'
+                    className={`font-extrabold font-display text-sm ${
+                      isExpense ? 'text-semantic-danger' : 'text-nopal'
                     }`}
                   >
                     {isExpense ? '-' : '+'}${tx.amount.toFixed(2)}
@@ -322,7 +342,7 @@ export default function Finance({ onDataChange }) {
                 </div>
               );
             })}
-          </div>
+          </RetroCard>
         )}
       </div>
 
@@ -331,227 +351,205 @@ export default function Finance({ onDataChange }) {
         <button
           onClick={() => setShowTxModal(true)}
           title="Quick Transaction"
-          className="fixed bottom-20 md:bottom-8 right-6 w-14 h-14 bg-emerald-600 hover:bg-emerald-500 text-white rounded-full shadow-xl shadow-emerald-950 flex items-center justify-center transition transform hover:scale-105 z-40"
+          className="fixed bottom-20 md:bottom-8 right-6 w-14 h-14 bg-cempasuchil hover:bg-cempasuchil-dark text-crema border-2 border-tinta rounded-full shadow-vintage flex items-center justify-center transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none z-40"
         >
           <Plus className="w-7 h-7" />
         </button>
       )}
 
       {/* Modal: Quick Transaction (< 5s) */}
-      {showTxModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold">Quick Entry</h3>
-              <button onClick={() => setShowTxModal(false)} className="text-slate-400 hover:text-white">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleQuickTransaction} className="space-y-4">
-              {/* Type Toggle */}
-              <div className="grid grid-cols-2 gap-2 bg-slate-800 p-1 rounded-xl">
-                <button
-                  type="button"
-                  onClick={() => setTxType('expense')}
-                  className={`py-2 rounded-lg text-sm font-semibold transition ${
-                    txType === 'expense' ? 'bg-rose-600 text-white' : 'text-slate-400'
-                  }`}
-                >
-                  Expense (-)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTxType('income')}
-                  className={`py-2 rounded-lg text-sm font-semibold transition ${
-                    txType === 'income' ? 'bg-emerald-600 text-white' : 'text-slate-400'
-                  }`}
-                >
-                  Income (+)
-                </button>
-              </div>
-
-              {/* Amount Input (AutoFocus for instant typing) */}
-              <div>
-                <label className="text-xs text-slate-400">Amount ($)</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  required
-                  autoFocus
-                  placeholder="0.00"
-                  value={txAmount}
-                  onChange={(e) => setTxAmount(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-2xl font-bold text-white focus:outline-none focus:border-emerald-500 mt-1"
-                />
-              </div>
-
-              {/* Account Selector */}
-              <div>
-                <label className="text-xs text-slate-400">Account</label>
-                <select
-                  value={selectedAccountId}
-                  onChange={(e) => setSelectedAccountId(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white mt-1"
-                >
-                  {overview.accounts.map((acc) => (
-                    <option key={acc.id} value={acc.id}>
-                      {acc.name} (${acc.balance})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* 1-Tap Category Chips */}
-              <div>
-                <label className="text-xs text-slate-400 block mb-1.5">Category (1-Tap)</label>
-                <div className="flex flex-wrap gap-2">
-                  {QUICK_CATEGORIES.map((cat) => (
-                    <button
-                      type="button"
-                      key={cat}
-                      onClick={() => setTxCategory(cat)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
-                        txCategory === cat
-                          ? 'bg-emerald-600 text-white'
-                          : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
-                      }`}
-                    >
-                      {cat}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Optional Note */}
-              <input
-                type="text"
-                placeholder="Note (optional, e.g., Tacos, Uber, Filament)"
-                value={txDesc}
-                onChange={(e) => setTxDesc(e.target.value)}
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white"
-              />
-
-              <button
-                type="submit"
-                className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 rounded-xl transition"
-              >
-                Save Transaction
-              </button>
-            </form>
+      <RetroModal
+        isOpen={showTxModal}
+        onClose={() => setShowTxModal(false)}
+        title="Quick Ledger Entry"
+      >
+        <form onSubmit={handleQuickTransaction} className="space-y-4">
+          <div className="grid grid-cols-2 gap-2 bg-crema-sunken p-1.5 rounded-xl border-2 border-tinta">
+            <button
+              type="button"
+              onClick={() => setTxType('expense')}
+              className={`py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition ${
+                txType === 'expense'
+                  ? 'bg-semantic-danger text-crema border border-tinta shadow-vintage-sm'
+                  : 'text-tinta-muted'
+              }`}
+            >
+              Expense (-)
+            </button>
+            <button
+              type="button"
+              onClick={() => setTxType('income')}
+              className={`py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition ${
+                txType === 'income'
+                  ? 'bg-nopal text-crema border border-tinta shadow-vintage-sm'
+                  : 'text-tinta-muted'
+              }`}
+            >
+              Income (+)
+            </button>
           </div>
-        </div>
-      )}
+
+          <div>
+            <label className="text-xs font-bold uppercase tracking-wider text-tinta-muted">
+              Amount ($)
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              required
+              autoFocus
+              placeholder="0.00"
+              value={txAmount}
+              onChange={(e) => setTxAmount(e.target.value)}
+              className="w-full bg-crema border-2 border-tinta rounded-xl px-4 py-3 text-2xl font-extrabold font-display text-tinta focus:outline-none focus:ring-2 focus:ring-nopal mt-1"
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-bold uppercase tracking-wider text-tinta-muted">
+              Account
+            </label>
+            <select
+              value={selectedAccountId}
+              onChange={(e) => setSelectedAccountId(e.target.value)}
+              className="w-full bg-crema border-2 border-tinta rounded-xl px-3 py-2.5 text-sm font-semibold text-tinta mt-1"
+            >
+              {overview.accounts.map((acc) => (
+                <option key={acc.id} value={acc.id}>
+                  {acc.name} (${acc.balance})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="text-xs font-bold uppercase tracking-wider text-tinta-muted block mb-1.5">
+              Category (1-Tap)
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {QUICK_CATEGORIES.map((cat) => (
+                <button
+                  type="button"
+                  key={cat}
+                  onClick={() => setTxCategory(cat)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition border ${
+                    txCategory === cat
+                      ? 'bg-nopal text-crema border-tinta shadow-vintage-sm'
+                      : 'bg-crema text-tinta-muted border-tinta/40 hover:bg-maiz-soft'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <input
+            type="text"
+            placeholder="Note (optional, e.g., Tacos, Uber, Filament)"
+            value={txDesc}
+            onChange={(e) => setTxDesc(e.target.value)}
+            className="w-full bg-crema border-2 border-tinta rounded-xl px-3 py-2.5 text-sm text-tinta placeholder:text-tinta-soft"
+          />
+
+          <RetroButton type="submit" variant="accent" className="w-full py-3">
+            Save Transaction
+          </RetroButton>
+        </form>
+      </RetroModal>
 
       {/* Modal: Create Account */}
-      {showAccModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold">New Account</h3>
-              <button onClick={() => setShowAccModal(false)} className="text-slate-400 hover:text-white">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <form onSubmit={handleCreateAccount} className="space-y-4">
-              <input
-                type="text"
-                required
-                placeholder="Account Name (e.g., Debit Card, Cash, GBM+)"
-                value={accName}
-                onChange={(e) => setAccName(e.target.value)}
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white"
-              />
-              <select
-                value={accType}
-                onChange={(e) => setAccType(e.target.value)}
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white"
-              >
-                <option value="debit">Debit / Checking</option>
-                <option value="cash">Cash</option>
-                <option value="investment">Investment (GBM+ / ETF)</option>
-                <option value="credit">Credit Card</option>
-              </select>
-              <input
-                type="number"
-                step="0.01"
-                placeholder="Initial Balance (0.00)"
-                value={accBalance}
-                onChange={(e) => setAccBalance(e.target.value)}
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white"
-              />
-              <button
-                type="submit"
-                className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 rounded-xl transition"
-              >
-                Create Account
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
+      <RetroModal
+        isOpen={showAccModal}
+        onClose={() => setShowAccModal(false)}
+        title="New Financial Account"
+      >
+        <form onSubmit={handleCreateAccount} className="space-y-4">
+          <input
+            type="text"
+            required
+            placeholder="Account Name (e.g., BBVA Debit, Nu, Cash, GBM+)"
+            value={accName}
+            onChange={(e) => setAccName(e.target.value)}
+            className="w-full bg-crema border-2 border-tinta rounded-xl px-4 py-2.5 text-sm font-medium text-tinta"
+          />
+          <select
+            value={accType}
+            onChange={(e) => setAccType(e.target.value)}
+            className="w-full bg-crema border-2 border-tinta rounded-xl px-4 py-2.5 text-sm font-semibold text-tinta"
+          >
+            <option value="debit">Debit / Checking</option>
+            <option value="cash">Cash</option>
+            <option value="investment">Investment (GBM+ / Cajita Nu)</option>
+            <option value="credit">Credit Card</option>
+          </select>
+          <input
+            type="number"
+            step="0.01"
+            placeholder="Initial Balance (0.00)"
+            value={accBalance}
+            onChange={(e) => setAccBalance(e.target.value)}
+            className="w-full bg-crema border-2 border-tinta rounded-xl px-4 py-2.5 text-sm font-medium text-tinta"
+          />
+          <RetroButton type="submit" variant="primary" className="w-full py-3">
+            Create Account
+          </RetroButton>
+        </form>
+      </RetroModal>
 
       {/* Modal: Transfer Between Accounts */}
-      {showTransferModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold">Transfer Funds</h3>
-              <button
-                onClick={() => setShowTransferModal(false)}
-                className="text-slate-400 hover:text-white"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <form onSubmit={handleTransfer} className="space-y-4">
-              <div>
-                <label className="text-xs text-slate-400">From Account</label>
-                <select
-                  value={fromAccId}
-                  onChange={(e) => setFromAccId(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white mt-1"
-                >
-                  {overview.accounts.map((acc) => (
-                    <option key={acc.id} value={acc.id}>
-                      {acc.name} (${acc.balance})
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="text-xs text-slate-400">To Account</label>
-                <select
-                  value={toAccId}
-                  onChange={(e) => setToAccId(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white mt-1"
-                >
-                  {overview.accounts.map((acc) => (
-                    <option key={acc.id} value={acc.id}>
-                      {acc.name} (${acc.balance})
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <input
-                type="number"
-                step="0.01"
-                required
-                placeholder="Amount to transfer ($)"
-                value={transferAmount}
-                onChange={(e) => setTransferAmount(e.target.value)}
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white"
-              />
-              <button
-                type="submit"
-                className="w-full bg-sky-600 hover:bg-sky-500 text-white font-semibold py-3 rounded-xl transition"
-              >
-                Execute Transfer
-              </button>
-            </form>
+      <RetroModal
+        isOpen={showTransferModal}
+        onClose={() => setShowTransferModal(false)}
+        title="Transfer Funds"
+      >
+        <form onSubmit={handleTransfer} className="space-y-4">
+          <div>
+            <label className="text-xs font-bold uppercase tracking-wider text-tinta-muted">
+              From Account
+            </label>
+            <select
+              value={fromAccId}
+              onChange={(e) => setFromAccId(e.target.value)}
+              className="w-full bg-crema border-2 border-tinta rounded-xl px-3 py-2.5 text-sm font-semibold text-tinta mt-1"
+            >
+              {overview.accounts.map((acc) => (
+                <option key={acc.id} value={acc.id}>
+                  {acc.name} (${acc.balance})
+                </option>
+              ))}
+            </select>
           </div>
-        </div>
-      )}
+          <div>
+            <label className="text-xs font-bold uppercase tracking-wider text-tinta-muted">
+              To Account
+            </label>
+            <select
+              value={toAccId}
+              onChange={(e) => setToAccId(e.target.value)}
+              className="w-full bg-crema border-2 border-tinta rounded-xl px-3 py-2.5 text-sm font-semibold text-tinta mt-1"
+            >
+              {overview.accounts.map((acc) => (
+                <option key={acc.id} value={acc.id}>
+                  {acc.name} (${acc.balance})
+                </option>
+              ))}
+            </select>
+          </div>
+          <input
+            type="number"
+            step="0.01"
+            required
+            placeholder="Amount to transfer ($)"
+            value={transferAmount}
+            onChange={(e) => setTransferAmount(e.target.value)}
+            className="w-full bg-crema border-2 border-tinta rounded-xl px-4 py-2.5 text-sm font-medium text-tinta"
+          />
+          <RetroButton type="submit" variant="primary" className="w-full py-3">
+            Execute Transfer
+          </RetroButton>
+        </form>
+      </RetroModal>
     </div>
   );
 }

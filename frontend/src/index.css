@@ -1,3 +1,32 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --color-nopal: #176B57;
+  --color-cempasuchil: #F45116;
+  --color-crema: #FFF4D6;
+  --color-crema-paper: #FFF9E8;
+  --color-tinta: #493725;
+  --color-oliva: #777D00;
+  --color-maiz: #F3DC79;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-crema);
+    color: var(--color-tinta);
+    /* Subtle editorial paper texture, free of heavy imagery */
+    background-image: radial-gradient(rgba(73, 55, 37, 0.05) 1px, transparent 0);
+    background-size: 20px 20px;
+  }
+
+  h1, h2, h3, .font-editorial {
+    font-family: 'Fraunces', Georgia, serif;
+  }
+}
+
+/* Decorative border inspired by *papel picado* and letterpress posters */
+.ornamental-border-top {
+  border-top: 3px double rgba(73, 55, 37, 0.35);
+}

@@ -3,7 +3,8 @@ import api from './api/client';
 import Login from './pages/Login';
 import Layout from './components/Layout';
 import Finance from './pages/Finance';
-import { Activity, Database, Lock } from 'lucide-react';
+import { Activity, Database, Lock, Sparkles } from 'lucide-react';
+import { RetroCard, RetroBadge, OrnamentalDivider } from './components/ui/RetroUI';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -68,8 +69,8 @@ function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 text-slate-400 flex items-center justify-center">
-        Loading Locked_In...
+      <div className="min-h-screen bg-crema text-tinta font-display flex items-center justify-center text-lg font-bold">
+        Loading Locked_In Vault...
       </div>
     );
   }
@@ -78,7 +79,7 @@ function App() {
     return <Login onLoginSuccess={fetchSessionData} />;
   }
 
-return (
+  return (
     <Layout
       activeTab={activeTab}
       setActiveTab={setActiveTab}
@@ -89,42 +90,49 @@ return (
         <Finance onDataChange={fetchSessionData} />
       ) : (
         <div className="max-w-5xl mx-auto space-y-6">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold capitalize">
-              Module: {activeTab}
-            </h1>
-            <p className="text-slate-400 text-sm mt-1">
-              Base architecture connected to PostgreSQL (Supabase) + FastAPI.
-            </p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b-2 border-tinta/20 pb-4">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-extrabold font-display capitalize text-tinta">
+                Domain: {activeTab}
+              </h1>
+              <p className="text-tinta-muted text-sm mt-1">
+                Self-hosted modular ERP architecture · Event-Driven SQL Engine + FastAPI.
+              </p>
+            </div>
+            <RetroBadge variant="oliva" className="self-start sm:self-auto">
+              <Sparkles className="w-3.5 h-3.5" /> Mexican Heritage Retro UI
+            </RetroBadge>
           </div>
+
+          <OrnamentalDivider label="System Telemetry & Isolation" />
 
           {/* Telemetry cards for connection to the backend */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
-              <div className="flex items-center justify-between text-slate-400 text-sm mb-2">
-                <span>API Status</span>
-                <Activity className="w-4 h-4 text-emerald-400" />
+            <RetroCard>
+              <div className="flex items-center justify-between text-tinta-muted text-xs font-bold uppercase tracking-wider mb-2">
+                <span>API & Event Bus</span>
+                <Activity className="w-4 h-4 text-nopal" />
               </div>
-              <p className="text-xl font-bold text-emerald-400">Online (JWT Active)</p>
-            </div>
+              <p className="text-xl font-bold font-display text-nopal">Online (JWT Active)</p>
+            </RetroCard>
 
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
-              <div className="flex items-center justify-between text-slate-400 text-sm mb-2">
-                <span>Multi-Tenant Isolation</span>
-                <Lock className="w-4 h-4 text-amber-400" />
+            <RetroCard variant="highlighted">
+              <div className="flex items-center justify-between text-tinta-muted text-xs font-bold uppercase tracking-wider mb-2">
+                <span>Multi-Tenant Vault</span>
+                <Lock className="w-4 h-4 text-cempasuchil" />
               </div>
-              <p className="text-xl font-bold capitalize">{user.role}</p>
-            </div>
+              <p className="text-xl font-bold font-display capitalize text-tinta">{user.role}</p>
+            </RetroCard>
 
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
-              <div className="flex items-center justify-between text-slate-400 text-sm mb-2">
-                <span>Database Records</span>
-                <Database className="w-4 h-4 text-sky-400" />
+            <RetroCard>
+              <div className="flex items-center justify-between text-tinta-muted text-xs font-bold uppercase tracking-wider mb-2">
+                <span>Self-Hosted Records</span>
+                <Database className="w-4 h-4 text-oliva" />
               </div>
-              <p className="text-xl font-bold">
-                {summary?.metrics?.accounts ?? 0} Accounts | {summary?.metrics?.pantry_items ?? 0} Groceries
+              <p className="text-xl font-bold font-display text-tinta">
+                {summary?.metrics?.accounts ?? 0} Accounts · {summary?.metrics?.pantry_items ?? 0} Items
               </p>
-            </div>
+            </RetroCard>
           </div>
         </div>
       )}
