@@ -16,6 +16,8 @@ __pycache__/
 
 # Ignore local databases
 *.db
+*.db-wal
+*.db-shm
 *.sqlite3
 
 # Ignore heavy frontend libraries
