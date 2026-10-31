@@ -1,100 +1,113 @@
 import { useState } from 'react';
 import api from '../api/client';
-import { ShieldCheck, Sparkles } from 'lucide-react';
+import { ShieldCheck, Sparkles, Compass } from 'lucide-react';
+import { RetroCard, RetroButton, RetroBadge, OrnamentalDivider } from '../components/ui/RetroUI';
 
 export default function Login({ onLoginSuccess }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
 
   const handlePersonalLogin = async (e) => {
     e.preventDefault();
     setError('');
-    setLoading(true);
     try {
       const formData = new URLSearchParams();
       formData.append('username', email);
       formData.append('password', password);
       const { data } = await api.post('/auth/login', formData);
       localStorage.setItem('locked_token', data.access_token);
-      onLoginSuccess();
+      if (onLoginSuccess) onLoginSuccess();
     } catch {
-      setError('Invalid credentials. Check your email and password.');
-    } finally {
-      setLoading(false);
+      setError('Invalid credentials. Please verify your email and password.');
     }
   };
 
   const handleDemoLogin = async () => {
     setError('');
-    setLoading(true);
     try {
       const { data } = await api.post('/auth/demo-login');
       localStorage.setItem('locked_token', data.access_token);
-      onLoginSuccess();
+      if (onLoginSuccess) onLoginSuccess();
     } catch {
-      setError('Could not connect to the backend server (verify that it is running on port 8000).');
-    } finally {
-      setLoading(false);
+      setError('Error connecting to the server.');
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
-        <div className="flex items-center gap-3 mb-2">
-          <ShieldCheck className="w-8 h-8 text-emerald-400" />
-          <h1 className="text-2xl font-bold tracking-tight">Locked_In</h1>
+    <div className="min-h-screen bg-crema text-tinta flex items-center justify-center p-4">
+      <RetroCard className="max-w-md w-full p-8 shadow-vintage-lg relative overflow-hidden">
+        {/* Decorative tricolor editorial top bar */}
+        <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-nopal via-maiz to-cempasuchil border-b border-tinta" />
+
+        <div className="flex items-center justify-between mb-4 mt-2">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-xl bg-nopal text-crema border-2 border-tinta shadow-vintage-sm flex items-center justify-center">
+              <ShieldCheck className="w-6 h-6" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-extrabold font-display tracking-tight text-tinta">
+                Locked_In
+              </h1>
+              <p className="text-xs text-tinta-muted font-medium">
+                Personal ERP & Life Telemetry
+              </p>
+            </div>
+          </div>
+          <RetroBadge variant="maiz">v2.0</RetroBadge>
         </div>
-        <p className="text-xs text-slate-400 mb-6">Personal ERP & Telemetry System</p>
 
         {error && (
-          <div className="bg-red-950/50 border border-red-500/40 text-red-300 text-xs p-3 rounded-lg mb-4">
+          <div className="bg-semantic-danger/10 border-2 border-semantic-danger text-semantic-danger rounded-xl px-4 py-2.5 text-xs font-semibold mb-4">
             {error}
           </div>
         )}
 
-        <form onSubmit={handlePersonalLogin} className="space-y-4">
-          <input
-            type="email"
-            placeholder="Personal email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-emerald-500"
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-emerald-500"
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 font-semibold py-3 rounded-lg transition"
-          >
-            {loading ? 'Connecting...' : 'Access My Space'}
-          </button>
+        <form onSubmit={handlePersonalLogin} className="space-y-4 mt-4">
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-tinta-muted mb-1">
+              Personal Email
+            </label>
+            <input
+              type="email"
+              required
+              placeholder="william@locked.in"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full bg-crema border-2 border-tinta rounded-xl px-4 py-2.5 text-sm text-tinta placeholder:text-tinta-soft focus:outline-none focus:ring-2 focus:ring-nopal"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-tinta-muted mb-1">
+              Password
+            </label>
+            <input
+              type="password"
+              required
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-crema border-2 border-tinta rounded-xl px-4 py-2.5 text-sm text-tinta placeholder:text-tinta-soft focus:outline-none focus:ring-2 focus:ring-nopal"
+            />
+          </div>
+
+          <RetroButton type="submit" variant="primary" className="w-full py-3">
+            <Compass className="w-4 h-4" /> Access Personal Vault
+          </RetroButton>
         </form>
 
-        <div className="my-6 border-t border-slate-800 relative">
-          <span className="bg-slate-900 px-3 text-xs text-slate-500 absolute -top-2.5 left-1/2 -translate-x-1/2">
-            PORTFOLIO / RECRUITERS
-          </span>
-        </div>
+        <OrnamentalDivider label="Portfolio & Recruiters" />
 
-        <button
+        <RetroButton
+          type="button"
           onClick={handleDemoLogin}
-          disabled={loading}
-          className="w-full bg-slate-800 hover:bg-slate-700 border border-emerald-500/40 text-emerald-300 font-medium py-3 rounded-lg flex items-center justify-center gap-2 transition"
+          variant="accent"
+          className="w-full py-3"
         >
-          <Sparkles className="w-4 h-4" /> Try Demo Mode (1-Clic)
-        </button>
-      </div>
+          <Sparkles className="w-4 h-4" /> Try Interactive Demo (1-Click)
+        </RetroButton>
+      </RetroCard>
     </div>
   );
 }
