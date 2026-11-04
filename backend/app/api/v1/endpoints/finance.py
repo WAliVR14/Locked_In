@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import SQLModel, Field, Session, select
+from app.core.events import subscribe, EventType
 
 from app.core.database import get_session
 from app.core.security import get_current_user
@@ -209,3 +210,43 @@ def create_transfer(
         "from_account_balance": from_acc.balance,
         "to_account_balance": to_acc.balance,
     }
+
+# =====================================================================
+# EVENT HANDLERS (SUSCRIPTORES DEL BUS INTERNO)
+# =====================================================================
+def _handle_grocery_purchase(session: Session, user_id: int, payload: dict):
+    """
+    Escucha cuando se registra una compra en Despensa.
+    Si el payload incluye una cuenta bancaria, descuenta el saldo y registra el movimiento.
+    """
+    account_id = payload.get("account_id")
+    cost = payload.get("cost", 0)
+    item_name = payload.get("item_name", "Despensa")
+    
+    if not account_id or cost <= 0:
+        return
+        
+    # Buscar la cuenta de liquidez
+    account = session.exec(
+        select(Account).where(Account.id == account_id, Account.user_id == user_id)
+    ).first()
+    
+    if account:
+        # Descontar el dinero de la cuenta
+        account.balance = round(account.balance - cost, 2)
+        
+        # Registrar el gasto en el libro mayor
+        tx = Transaction(
+            account_id=account.id,
+            amount=cost,
+            type="expense",
+            category="Supermercado",
+            description=f"Compra: {item_name}"
+        )
+        session.add(account)
+        session.add(tx)
+        # Nota: No hacemos session.commit() aquí. El módulo de Despensa lo hará
+        # al final para garantizar que todo (inventario y dinero) se guarde junto.
+
+# Suscribir la función al evento tan pronto como FastAPI cargue este archivo
+subscribe(EventType.GROCERY_PURCHASE_COMPLETED, _handle_grocery_purchase)
