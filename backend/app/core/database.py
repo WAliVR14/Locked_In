@@ -1,12 +1,22 @@
 # backend/app/core/database.py
+import os
 from sqlalchemy import event, text
 from sqlmodel import SQLModel, create_engine, Session
 from app.core.config import settings
 
-is_sqlite = settings.DATABASE_URL.startswith("sqlite")
+db_url = settings.db_url
+is_sqlite = db_url.startswith("sqlite")
+
+# Ensure directory exists for persistent SQLite files (e.g. Render /var/data/locked_in.db)
+if is_sqlite and ":///" in db_url:
+    path_part = db_url.split(":///", 1)[1]
+    dir_name = os.path.dirname(path_part)
+    if dir_name:
+        os.makedirs(dir_name, exist_ok=True)
+
 connect_args = {"check_same_thread": False} if is_sqlite else {}
 
-engine = create_engine(settings.DATABASE_URL, connect_args=connect_args)
+engine = create_engine(db_url, connect_args=connect_args)
 
 # If we use local SQLite, we enable WAL mode (concurrency) and strict foreign keys.
 if is_sqlite:

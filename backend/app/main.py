@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi.responses import JSONResponse
 from sqlmodel import Session, select, func
 
+from app.core.config import settings
 from app.core.database import init_db, get_session
 from app.core.security import get_current_user
 from app.models.entities import User, Account, PantryItem
@@ -24,10 +25,26 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-#CORS configuration to allow requests from React (localhost:5173)
+# CORS configuration supporting localhost, dynamic FRONTEND_URL, and Vercel deployments
+cors_origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+]
+
+frontend_url = settings.FRONTEND_URL.strip() if settings.FRONTEND_URL else "*"
+allow_all = frontend_url == "*"
+
+if not allow_all:
+    for origin in frontend_url.split(","):
+        cleaned = origin.strip()
+        if cleaned and cleaned not in cors_origins:
+            cors_origins.append(cleaned)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=cors_origins,
+    allow_origin_regex=r".*" if allow_all else r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -49,7 +66,6 @@ app.include_router(finance.router)
 app.include_router(today.router)
 app.include_router(strategy.router)
 app.include_router(health_metrics.router)
-
 
 
 @app.get("/api/v1/health", tags=["System"])

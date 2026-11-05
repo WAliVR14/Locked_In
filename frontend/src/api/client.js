@@ -1,7 +1,12 @@
 import axios from 'axios';
 
+const rawBaseURL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const baseURL = rawBaseURL.endsWith('/api/v1')
+  ? rawBaseURL
+  : `${rawBaseURL.replace(/\/+$/, '')}/api/v1`;
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1',
+  baseURL,
 });
 
 // Interceptor: Automatically injects the JWT token into every outgoing request.

@@ -1,5 +1,5 @@
 # backend/app/core/config.py
-from typing import Literal
+from typing import Literal, Optional
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -8,8 +8,12 @@ class Settings(BaseSettings):
     # Define the current environment: 'development', 'demo', or 'production'
     APP_ENV: Literal["development", "demo", "production"] = "development"
 
-    # By default, it uses a self-managed local database (without depending on Supabase).
-    DATABASE_URL: str = "sqlite:///./locked_in.db"
+    # Database configuration supporting dynamic paths and render persistence
+    DATABASE_URL: Optional[str] = None
+    DB_PATH: Optional[str] = None
+
+    # CORS Frontend URL (comma-separated origins or '*' wildcard)
+    FRONTEND_URL: str = "*"
 
     # JWT Security (Retained intact from Day 3)
     SECRET_KEY: str = "Locked_In_12345"
@@ -20,6 +24,18 @@ class Settings(BaseSettings):
     DEMO_READ_ONLY: bool = False
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+    @property
+    def db_url(self) -> str:
+        """Resolve database URL dynamically with fallback and postgres dialect normalization."""
+        if self.DATABASE_URL:
+            url = self.DATABASE_URL
+            if url.startswith("postgres://"):
+                url = url.replace("postgres://", "postgresql://", 1)
+            return url
+        if self.DB_PATH:
+            return f"sqlite:///{self.DB_PATH}"
+        return "sqlite:///./locked_in.db"
 
     @property
     def is_demo(self) -> bool:
