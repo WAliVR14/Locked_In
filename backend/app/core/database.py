@@ -1,5 +1,5 @@
 # backend/app/core/database.py
-from sqlalchemy import event
+from sqlalchemy import event, text
 from sqlmodel import SQLModel, create_engine, Session
 from app.core.config import settings
 
@@ -21,6 +21,17 @@ if is_sqlite:
 
 def init_db():
     SQLModel.metadata.create_all(engine)
+    if is_sqlite:
+        # Safe schema synchronization for SQLite
+        with engine.begin() as conn:
+            # Check goals table columns
+            goal_cols = [
+                row[1] for row in conn.execute(text("PRAGMA table_info(goals);")).fetchall()
+            ]
+            if "category" not in goal_cols and len(goal_cols) > 0:
+                conn.execute(text("ALTER TABLE goals ADD COLUMN category VARCHAR DEFAULT 'Career';"))
+            if "target_date" not in goal_cols and len(goal_cols) > 0:
+                conn.execute(text("ALTER TABLE goals ADD COLUMN target_date DATE;"))
 
 
 def get_session():
