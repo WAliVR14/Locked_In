@@ -90,6 +90,39 @@ class SavingsFund(SQLModel, table=True):
     target_amount: float = Field(default=0.0)
     current_saved: float = Field(default=0.0)
     monthly_allocation: float = Field(default=0.0)
+    annual_rate: float = Field(default=0.0)  # Annual yield rate (e.g. 0.145 = 14.5%)
+
+
+
+
+class DebtLoan(SQLModel, table=True):
+    """Personal or institutional loans and debts."""
+    __tablename__ = "debt_loans"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: int = Field(foreign_key="users.id", index=True)
+    institution_id: Optional[int] = Field(default=None, foreign_key="institutions.id")
+    name: str                                   # Ej: 'Préstamo Auto BBVA', 'Crédito IMSS'
+    total_amount: float = Field(default=0.0)
+    outstanding_balance: float = Field(default=0.0)
+    interest_rate: float = Field(default=0.0)   # Annual rate
+    monthly_payment: float = Field(default=0.0)
+    next_payment_date: Optional[date] = Field(default=None, index=True)
+    status: str = Field(default="active")       # active, paid_off
+
+
+class Subscription(SQLModel, table=True):
+    """Recurring charges: Netflix, Spotify, AWS, GitHub Pro, etc."""
+    __tablename__ = "subscriptions"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: int = Field(foreign_key="users.id", index=True)
+    instrument_id: Optional[int] = Field(default=None, foreign_key="payment_instruments.id")
+    name: str                                   # Ej: 'Netflix', 'AWS', 'GitHub Pro'
+    amount: float = Field(default=0.0)
+    currency: str = Field(default="MXN")
+    billing_day: Optional[int] = None           # Day of month charged (1-31)
+    category: str = Field(default="Digital")    # Digital, Cloud, Health, Education
+    status: str = Field(default="active")       # active, paused, cancelled
+    next_billing_date: Optional[date] = Field(default=None, index=True)
 
 
 # =====================================================================
