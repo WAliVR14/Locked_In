@@ -12,6 +12,7 @@ import {
   Wallet,
   ShoppingBag,
   Sparkles,
+  Dumbbell,
 } from 'lucide-react';
 import {
   RetroCard,
@@ -35,6 +36,7 @@ export default function Today({ onDataChange }) {
       days_remaining_in_month: 30,
     },
     pantry_alerts: [],
+    workout_completed_today: false,
   });
   const [loading, setLoading] = useState(true);
   const [showTaskModal, setShowTaskModal] = useState(false);
@@ -355,6 +357,34 @@ export default function Today({ onDataChange }) {
 
         {/* Right Column: Cross-Module Telemetry (Habits & Alerts) */}
         <div className="space-y-6">
+          {/* Bio & Gym Daily Training Status Widget */}
+          <RetroCard className="p-3.5 flex items-center justify-between border-2 border-tinta">
+            <div className="flex items-center gap-2.5">
+              <div
+                className={`w-9 h-9 rounded-xl border-2 border-tinta flex items-center justify-center ${
+                  data.workout_completed_today
+                    ? 'bg-nopal text-crema shadow-vintage-sm'
+                    : 'bg-crema-sunken text-tinta-muted'
+                }`}
+              >
+                <Dumbbell className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-tinta-muted block">
+                  Bio & Gym · Hoy
+                </span>
+                <span className="text-xs font-bold text-tinta">
+                  {data.workout_completed_today
+                    ? 'Entrenamiento de hoy completado'
+                    : 'Sesión pendiente para hoy'}
+                </span>
+              </div>
+            </div>
+            <RetroBadge variant={data.workout_completed_today ? 'nopal' : 'cempasuchil'}>
+              {data.workout_completed_today ? '✓ Listo' : 'Pendiente'}
+            </RetroBadge>
+          </RetroCard>
+
           {/* Habits & Daily Streaks */}
           <RetroCard className="space-y-3">
             <div className="flex items-center justify-between border-b-2 border-tinta/10 pb-2">

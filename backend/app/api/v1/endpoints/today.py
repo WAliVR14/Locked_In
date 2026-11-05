@@ -16,6 +16,7 @@ from app.models.entities import (
     PaymentInstrument,
     Subscription,
     PantryItem,
+    WorkoutLog,
 )
 
 router = APIRouter(prefix="/api/v1/today", tags=["Today"])
@@ -145,6 +146,15 @@ def get_today_overview(
     spendable = max(0.0, net_liquidity - subs_remaining)
     safe_to_spend_daily = round(spendable / days_remaining, 2)
 
+    # 5. Health & Workout Telemetry
+    workout_today = session.exec(
+        select(WorkoutLog).where(
+            WorkoutLog.user_id == current_user.id,
+            WorkoutLog.date == today,
+        )
+    ).first()
+    workout_completed_today = workout_today is not None
+
     # 4. Pantry Warnings (Expiring in <= 3 days or Low Stock)
     pantry_items = session.exec(
         select(PantryItem).where(PantryItem.user_id == current_user.id)
@@ -187,6 +197,7 @@ def get_today_overview(
             "days_remaining_in_month": days_remaining,
         },
         "pantry_alerts": pantry_alerts,
+        "workout_completed_today": workout_completed_today,
     }
 
 
