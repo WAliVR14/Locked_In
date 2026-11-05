@@ -15,6 +15,10 @@ class EventType:
     BIOMETRIC_SYNC_RECEIVED = "BiometricSyncReceived"
     TASK_COMPLETED = "TaskCompleted"
     GOAL_PROGRESS_UPDATED = "GoalProgressUpdated"
+    # Finance v2 events
+    CREDIT_CHARGE_RECORDED = "CreditChargeRecorded"
+    SUBSCRIPTION_CREATED = "SubscriptionCreated"
+    DEBT_CREATED = "DebtCreated"
 
 
 # Type for subscriber functions: they receive (session, user_id, payload_dict)
