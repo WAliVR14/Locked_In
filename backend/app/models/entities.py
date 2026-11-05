@@ -228,12 +228,14 @@ class Goal(SQLModel, table=True):
     user_id: int = Field(foreign_key="users.id", index=True)
     title: str
     description: Optional[str] = None
+    category: str = Field(default="Career", index=True)  # Career, Education, Business, Health
     horizon: str = Field(default="medium", index=True)  # 'short' (semanas), 'medium' (3-12m), 'long' (1-10a)
     priority: int = Field(default=2)                    # 1: Baja, 2: Media, 3: Alta
     status: str = Field(default="active", index=True)   # pending, active, paused, completed, cancelled
     progress_pct: int = Field(default=0)
     target_budget: float = Field(default=0.0)
     deadline: Optional[date] = None
+    target_date: Optional[date] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 
@@ -336,3 +338,14 @@ class Habit(SQLModel, table=True):
     routine_block: str = Field(default="morning")  # morning, afternoon, night, anytime
     current_streak: int = Field(default=0)
     last_completed_date: Optional[date] = None
+
+class HabitTracker(SQLModel, table=True):
+    """Habit tracking with streak telemetry (Day/Weekly)."""
+    __tablename__ = "habit_trackers"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: int = Field(foreign_key="users.id", index=True)
+    name: str                                    # Ej: 'Anki English Deck', 'Stoic Reading', 'Training'
+    frequency: str = Field(default="daily")      # daily, weekly
+    current_streak: int = Field(default=0)
+    last_completed_date: Optional[date] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
