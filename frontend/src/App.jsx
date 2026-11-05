@@ -3,6 +3,7 @@ import api from './api/client';
 import Login from './pages/Login';
 import Layout from './components/Layout';
 import Finance from './pages/Finance';
+import Pantry from './pages/Pantry';
 import { Activity, Database, Lock, Sparkles } from 'lucide-react';
 import { RetroCard, RetroBadge, OrnamentalDivider } from './components/ui/RetroUI';
 
@@ -86,9 +87,9 @@ function App() {
       user={user}
       onLogout={handleLogout}
     >
-      {activeTab === 'finance' ? (
-        <Finance onDataChange={fetchSessionData} />
-      ) : (
+      {activeTab === 'finance' && <Finance onDataChange={fetchSessionData} />}
+      {activeTab === 'groceries' && <Pantry onDataChange={fetchSessionData} />}
+      {activeTab !== 'finance' && activeTab !== 'groceries' && (
         <div className="max-w-5xl mx-auto space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b-2 border-tinta/20 pb-4">
             <div>
