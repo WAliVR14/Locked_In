@@ -6,6 +6,7 @@ import Today from './pages/Today';
 import Finance from './pages/Finance';
 import Pantry from './pages/Pantry';
 import Strategy from './pages/Strategy';
+import Health from './pages/Health';
 import { Activity, Database, Lock, Sparkles } from 'lucide-react';
 import { RetroCard, RetroBadge, OrnamentalDivider } from './components/ui/RetroUI';
 
@@ -93,10 +94,15 @@ function App() {
       {activeTab === 'finance' && <Finance onDataChange={fetchSessionData} />}
       {activeTab === 'groceries' && <Pantry onDataChange={fetchSessionData} />}
       {activeTab === 'strategy' && <Strategy onDataChange={fetchSessionData} />}
+      {(activeTab === 'gym' || activeTab === 'health') && (
+        <Health onDataChange={fetchSessionData} />
+      )}
       {activeTab !== 'dashboard' &&
         activeTab !== 'finance' &&
         activeTab !== 'groceries' &&
-        activeTab !== 'strategy' && (
+        activeTab !== 'strategy' &&
+        activeTab !== 'gym' &&
+        activeTab !== 'health' && (
           <div className="max-w-5xl mx-auto space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b-2 border-tinta/20 pb-4">
               <div>

@@ -1,5 +1,6 @@
 # backend/app/models/entities.py
 from datetime import date, datetime
+import datetime as _dt
 from typing import Optional
 from sqlmodel import Field, SQLModel
 
@@ -194,15 +195,29 @@ class Exercise(SQLModel, table=True):
 
 
 class WorkoutLog(SQLModel, table=True):
+    """Workout session logs (Strength, Cardio, Calisthenics, Flexibility)."""
     __tablename__ = "workout_logs"
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: int = Field(foreign_key="users.id", index=True)
-    exercise_id: int = Field(foreign_key="exercises.id", index=True)
-    weight_kg: float
-    reps: int
-    rpe: float = Field(default=8.0)
-    estimated_1rm: float = Field(default=0.0)
+    type: str = Field(default="Strength", index=True)  # Strength, Cardio, Calisthenics, Flexibility
+    title: str = Field(default="Entrenamiento")
+    duration_minutes: int = Field(default=45)
+    calories_burned: Optional[int] = None
+    notes: Optional[str] = None
+    date: _dt.date = Field(default_factory=_dt.date.today, index=True)
     logged_at: datetime = Field(default_factory=datetime.utcnow, index=True)
+
+
+class HealthMetric(SQLModel, table=True):
+    """Biometric records: body weight, sleep hours, resting heart rate."""
+    __tablename__ = "health_metrics"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: int = Field(foreign_key="users.id", index=True)
+    metric_type: str = Field(index=True)  # Weight, SleepHours, HeartRate
+    value: float
+    unit: str  # kg, hours, bpm
+    date: _dt.date = Field(default_factory=_dt.date.today, index=True)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
 
 
 class BiometricDaily(SQLModel, table=True):
