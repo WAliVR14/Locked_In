@@ -123,3 +123,89 @@ def test_today_overview_reflects_workout_status():
         today_data = today_res.json()
         assert "workout_completed_today" in today_data
         assert today_data["workout_completed_today"] is True
+
+
+def test_workout_with_blocks_and_ai_coach():
+    with TestClient(app) as client:
+        auth_res = client.post("/api/v1/auth/demo-login")
+        token = auth_res.json()["access_token"]
+        headers = {"Authorization": f"Bearer {token}"}
+
+        # 1. Create a structured workout with 2 blocks and exercises
+        payload = {
+            "title": "Fuerza Pesada Torso",
+            "type": "Strength",
+            "duration_minutes": 65,
+            "calories_burned": 450,
+            "date": date.today().isoformat(),
+            "blocks": [
+                {
+                    "name": "Bloque 1 - Fuerza Principal",
+                    "block_order": 1,
+                    "exercises": [
+                        {
+                            "name": "Press Militar",
+                            "sets": 4,
+                            "reps": 6,
+                            "weight": 55.0,
+                            "notes": "Muy fluido, rpe 7, listo para subir peso",
+                            "order_index": 1,
+                        },
+                        {
+                            "name": "Dominadas Lastradas",
+                            "sets": 3,
+                            "reps": 6,
+                            "weight": 15.0,
+                            "notes": "Sentí tirón en codo derecho en la última repe",
+                            "order_index": 2,
+                        },
+                    ],
+                },
+                {
+                    "name": "Bloque 2 - Hipertrofia",
+                    "block_order": 2,
+                    "exercises": [
+                        {
+                            "name": "Elevaciones Laterales",
+                            "sets": 4,
+                            "reps": 12,
+                            "weight": 14.0,
+                            "notes": "Buen bombeo",
+                            "order_index": 1,
+                        }
+                    ],
+                },
+            ],
+        }
+
+        res = client.post("/api/v1/health-metrics/workouts", json=payload, headers=headers)
+        assert res.status_code == 201
+        data = res.json()
+        assert len(data["blocks"]) == 2
+        assert len(data["blocks"][0]["exercises"]) == 2
+        assert data["blocks"][0]["exercises"][0]["name"] == "Press Militar"
+        assert data["blocks"][0]["exercises"][0]["weight"] == 55.0
+        assert "tirón" in data["blocks"][0]["exercises"][1]["notes"]
+        workout_id = data["id"]
+
+        # 2. Test AI Coach feedback endpoint
+        coach_res = client.post(f"/api/v1/health-metrics/workouts/{workout_id}/ai-coach", headers=headers)
+        assert coach_res.status_code == 200
+        coach_data = coach_res.json()
+
+        assert "overall_assessment" in coach_data
+        assert "coach_verdict" in coach_data
+        assert "suggestions" in coach_data
+        assert len(coach_data["suggestions"]) > 0
+
+        # Check that AI coach detected overload for Press Militar and fatigue for Dominadas Lastradas
+        suggestions_ex = [s["exercise"] for s in coach_data["suggestions"]]
+        assert "Press Militar" in suggestions_ex
+        assert "Dominadas Lastradas" in suggestions_ex
+
+        # Check suggestions content
+        militar_sug = next(s for s in coach_data["suggestions"] if s["exercise"] == "Press Militar")
+        assert "Sobrecarga" in militar_sug["action"]
+
+        dominadas_sug = next(s for s in coach_data["suggestions"] if s["exercise"] == "Dominadas Lastradas")
+        assert "Descarga" in dominadas_sug["action"] or "Mantener" in dominadas_sug["action"]

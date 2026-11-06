@@ -7,6 +7,7 @@ import Finance from './pages/Finance';
 import Pantry from './pages/Pantry';
 import Strategy from './pages/Strategy';
 import Health from './pages/Health';
+import Insights from './pages/Insights';
 import { Activity, Database, Lock, Sparkles } from 'lucide-react';
 import { RetroCard, RetroBadge, OrnamentalDivider } from './components/ui/RetroUI';
 
@@ -30,8 +31,7 @@ function App() {
     } catch {
       localStorage.removeItem('locked_token');
       setUser(null);
-    } finally {
-      setLoading(false);
+      setSummary(null);
     }
   }, []);
 
@@ -51,12 +51,11 @@ function App() {
         if (isMounted) {
           localStorage.removeItem('locked_token');
           setUser(null);
+          setSummary(null);
         }
       })
       .finally(() => {
-        if (isMounted) {
-          setLoading(false);
-        }
+        if (isMounted) setLoading(false);
       });
 
     return () => {
@@ -97,12 +96,14 @@ function App() {
       {(activeTab === 'gym' || activeTab === 'health') && (
         <Health onDataChange={fetchSessionData} />
       )}
+      {activeTab === 'insights' && <Insights onDataChange={fetchSessionData} />}
       {activeTab !== 'dashboard' &&
         activeTab !== 'finance' &&
         activeTab !== 'groceries' &&
         activeTab !== 'strategy' &&
         activeTab !== 'gym' &&
-        activeTab !== 'health' && (
+        activeTab !== 'health' &&
+        activeTab !== 'insights' && (
           <div className="max-w-5xl mx-auto space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b-2 border-tinta/20 pb-4">
               <div>

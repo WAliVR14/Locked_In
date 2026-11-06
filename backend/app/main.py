@@ -9,7 +9,15 @@ from app.core.config import settings
 from app.core.database import init_db, get_session
 from app.core.security import get_current_user
 from app.models.entities import User, Account, PantryItem
-from app.api.v1.endpoints import auth, finance, health_metrics, pantry, strategy, today
+from app.api.v1.endpoints import (
+    auth,
+    finance,
+    health_metrics,
+    insights,
+    pantry,
+    strategy,
+    today,
+)
 
 
 @asynccontextmanager
@@ -59,13 +67,14 @@ async def global_exception_handler(request: Request, exc: Exception):
     )
 
 
-# Register authentication routes (/api/v1/auth/...)
+# Register all domain routes (/api/v1/...) - 6 Domains (ADR-01)
 app.include_router(auth.router)
 app.include_router(pantry.router)
 app.include_router(finance.router)
 app.include_router(today.router)
 app.include_router(strategy.router)
 app.include_router(health_metrics.router)
+app.include_router(insights.router)
 
 
 @app.get("/api/v1/health", tags=["System"])

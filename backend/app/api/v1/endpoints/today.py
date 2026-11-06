@@ -33,6 +33,17 @@ class TaskCreateToday(SQLModel):
     goal_id: Optional[int] = None
 
 
+class TaskUpdate(SQLModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    priority: Optional[int] = None
+    due_date: Optional[date] = None
+    scheduled_date: Optional[date] = None
+    time_block: Optional[str] = None
+    goal_id: Optional[int] = None
+    status: Optional[str] = None
+
+
 class HabitCreate(SQLModel):
     name: str
     frequency: str = "daily"
@@ -266,6 +277,48 @@ def toggle_task_status(
     session.commit()
     session.refresh(task)
     return task
+
+
+@router.patch("/tasks/{task_id}", response_model=Task)
+def update_task_today(
+    task_id: int,
+    payload: TaskUpdate,
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+):
+    """Update a task's details in the centralized tasks table (ADR-01)."""
+    task = session.exec(
+        select(Task).where(Task.id == task_id, Task.user_id == current_user.id)
+    ).first()
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    update_data = payload.model_dump(exclude_unset=True)
+    for field, val in update_data.items():
+        setattr(task, field, val)
+
+    session.add(task)
+    session.commit()
+    session.refresh(task)
+    return task
+
+
+@router.delete("/tasks/{task_id}", status_code=status.HTTP_200_OK)
+def delete_task_today(
+    task_id: int,
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+):
+    """Delete a task from the centralized tasks table (ADR-01)."""
+    task = session.exec(
+        select(Task).where(Task.id == task_id, Task.user_id == current_user.id)
+    ).first()
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    session.delete(task)
+    session.commit()
+    return {"message": "Task deleted successfully", "task_id": task_id}
 
 
 @router.post("/habits/{habit_id}/check", response_model=HabitTracker)
