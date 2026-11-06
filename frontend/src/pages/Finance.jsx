@@ -24,7 +24,8 @@ import {
   RetroModal,
 } from '../components/ui/RetroUI';
 
-const QUICK_CATEGORIES = ['Food', 'Transport', 'Tech / 3D', 'Gym', 'Investments', 'Fixed'];
+const QUICK_EXPENSE_TAGS = ['Comida', 'Suscripciones', 'Transporte', 'Tacos', 'Gimnasio', 'Despensa', 'Salud', 'Ocio'];
+const QUICK_INCOME_TAGS = ['Nómina HELLA', 'Proyectos', 'Transferencia', 'Rendimientos', 'Venta / Freelance', 'Reembolso'];
 const TABS = [
   { id: 'ledger', label: 'Cuentas & Libro', icon: BookOpen },
   { id: 'cards', label: 'Tarjetas & Bancos', icon: CreditCard },
@@ -926,21 +927,35 @@ export default function Finance({ onDataChange }) {
             </select>
           )}
 
-          {/* Category */}
-          <div className="flex flex-wrap gap-2">
-            {QUICK_CATEGORIES.map((cat) => (
-              <button
-                type="button"
-                key={cat}
-                onClick={() => setTxCategory(cat)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition border ${txCategory === cat
-                    ? 'bg-nopal text-crema border-tinta shadow-vintage-sm'
-                    : 'bg-crema text-tinta-muted border-tinta/40 hover:bg-maiz-soft'
+          {/* Reactive Category Tags */}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-tinta-muted">
+              <span>Etiquetas Rápidas</span>
+              <span className={txType === 'income' ? 'text-nopal font-extrabold' : 'text-cempasuchil font-extrabold'}>
+                {txType === 'income' ? 'Ingreso (+)' : 'Gasto (-)'}
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {(txType === 'income' ? QUICK_INCOME_TAGS : QUICK_EXPENSE_TAGS).map((cat) => (
+                <button
+                  type="button"
+                  key={cat}
+                  onClick={() => {
+                    setTxCategory(cat);
+                    if (!txDesc) setTxDesc(cat);
+                  }}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition border ${
+                    txCategory === cat
+                      ? txType === 'income'
+                        ? 'bg-nopal text-crema border-tinta shadow-vintage-sm'
+                        : 'bg-cempasuchil text-crema border-tinta shadow-vintage-sm'
+                      : 'bg-crema text-tinta-muted border-tinta/40 hover:bg-maiz-soft'
                   }`}
-              >
-                {cat}
-              </button>
-            ))}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
           </div>
 
           <input

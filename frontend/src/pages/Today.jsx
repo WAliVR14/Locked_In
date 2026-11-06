@@ -13,6 +13,8 @@ import {
   ShoppingBag,
   Sparkles,
   Dumbbell,
+  Pencil,
+  Trash2,
 } from 'lucide-react';
 import {
   RetroCard,
@@ -51,6 +53,14 @@ export default function Today({ onDataChange }) {
   // New Habit state
   const [habitName, setHabitName] = useState('');
   const [habitFrequency, setHabitFrequency] = useState('daily');
+
+  // Edit Task state
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingTask, setEditingTask] = useState(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editDesc, setEditDesc] = useState('');
+  const [editPriority, setEditPriority] = useState(2);
+  const [editTimeBlock, setEditTimeBlock] = useState('');
 
   const fetchTodayData = useCallback(async () => {
     try {
@@ -141,6 +151,58 @@ export default function Today({ onDataChange }) {
       await fetchTodayData();
     } catch (err) {
       console.error('Error toggling habit:', err);
+    }
+  };
+
+  const openEditModal = (task) => {
+    setEditingTask(task);
+    setEditTitle(task.title || '');
+    setEditDesc(task.description || '');
+    setEditPriority(task.priority || 2);
+    setEditTimeBlock(task.time_block || '');
+    setShowEditModal(true);
+  };
+
+  const handleSaveEditTask = async (e) => {
+    e.preventDefault();
+    if (!editingTask || !editTitle.trim()) return;
+    try {
+      const res = await api.patch(`/today/tasks/${editingTask.id}`, {
+        title: editTitle.trim(),
+        description: editDesc.trim() || null,
+        priority: Number(editPriority),
+        time_block: editTimeBlock.trim() || null,
+      });
+      setData((prev) => ({
+        ...prev,
+        tasks_today: prev.tasks_today.map((t) => (t.id === editingTask.id ? res.data : t)),
+      }));
+      setShowEditModal(false);
+      setEditingTask(null);
+    } catch (err) {
+      console.error('Error updating task:', err);
+    }
+  };
+
+  const handleDeleteTask = async (taskId) => {
+    if (!window.confirm('¿Deseas eliminar esta tarea?')) return;
+    try {
+      await api.delete(`/today/tasks/${taskId}`);
+      setData((prev) => {
+        const remaining = prev.tasks_today.filter((t) => t.id !== taskId);
+        const completedCount = remaining.filter((t) => t.status === 'completed' || t.status === 'done').length;
+        return {
+          ...prev,
+          tasks_today: remaining,
+          summary_counts: {
+            total: remaining.length,
+            completed: completedCount,
+            pending: remaining.length - completedCount,
+          },
+        };
+      });
+    } catch (err) {
+      console.error('Error deleting task:', err);
     }
   };
 
@@ -347,6 +409,30 @@ export default function Today({ onDataChange }) {
                       <RetroBadge variant="default" className="text-[10px] uppercase">
                         {task.source_module || 'agenda'}
                       </RetroBadge>
+                      <div className="flex items-center gap-1 border-l border-tinta/20 pl-2">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openEditModal(task);
+                          }}
+                          title="Editar Tarea"
+                          className="p-1 hover:bg-crema-sunken rounded text-tinta-muted hover:text-nopal transition"
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteTask(task.id);
+                          }}
+                          title="Eliminar Tarea"
+                          className="p-1 hover:bg-semantic-danger/10 rounded text-tinta-muted hover:text-semantic-danger transition"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );
@@ -557,6 +643,80 @@ export default function Today({ onDataChange }) {
 
           <RetroButton type="submit" variant="primary" className="w-full py-2.5">
             Agendar Tarea
+          </RetroButton>
+        </form>
+      </RetroModal>
+
+      {/* Modal: Edit Task */}
+      <RetroModal
+        isOpen={showEditModal}
+        onClose={() => {
+          setShowEditModal(false);
+          setEditingTask(null);
+        }}
+        title="Editar Tarea"
+      >
+        <form onSubmit={handleSaveEditTask} className="space-y-4">
+          <div>
+            <label className="text-xs font-bold uppercase tracking-wider text-tinta-muted block mb-1">
+              Título de la Tarea
+            </label>
+            <input
+              type="text"
+              required
+              placeholder="Ej. Revisar pruebas HIL en banco"
+              value={editTitle}
+              onChange={(e) => setEditTitle(e.target.value)}
+              className="w-full bg-crema border-2 border-tinta rounded-xl px-3 py-2 text-sm text-tinta font-semibold focus:outline-none focus:ring-2 focus:ring-nopal"
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-bold uppercase tracking-wider text-tinta-muted block mb-1">
+              Bloque Horario (Time-Block)
+            </label>
+            <input
+              type="text"
+              placeholder="Ej. 14:00 - 15:30"
+              value={editTimeBlock}
+              onChange={(e) => setEditTimeBlock(e.target.value)}
+              className="w-full bg-crema border-2 border-tinta rounded-xl px-3 py-2 text-sm text-tinta focus:outline-none focus:ring-2 focus:ring-nopal"
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-bold uppercase tracking-wider text-tinta-muted block mb-1">
+              Prioridad
+            </label>
+            <select
+              value={editPriority}
+              onChange={(e) => setEditPriority(Number(e.target.value))}
+              className="w-full bg-crema border-2 border-tinta rounded-xl px-3 py-2 text-sm text-tinta font-semibold focus:outline-none focus:ring-2 focus:ring-nopal"
+            >
+              <option value={1}>1 - Baja</option>
+              <option value={2}>2 - Media</option>
+              <option value={3}>3 - Alta</option>
+              <option value={4}>4 - Urgente</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="text-xs font-bold uppercase tracking-wider text-tinta-muted block mb-1">
+              Notas / Descripción
+            </label>
+            <textarea
+              rows={2}
+              placeholder="Detalles opcionales o enlaces..."
+              value={editDesc}
+              onChange={(e) => setEditDesc(e.target.value)}
+              className="w-full bg-crema border-2 border-tinta rounded-xl px-3 py-2 text-sm text-tinta focus:outline-none focus:ring-2 focus:ring-nopal"
+            />
+          </div>
+
+          <OrnamentalDivider label="Actualizar" />
+
+          <RetroButton type="submit" variant="primary" className="w-full py-2.5">
+            Guardar Cambios
           </RetroButton>
         </form>
       </RetroModal>
