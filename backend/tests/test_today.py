@@ -97,3 +97,54 @@ def test_today_habit_check_streak():
         uncheck_res = client.post(f"/api/v1/today/habits/{habit['id']}/check", headers=headers)
         assert uncheck_res.status_code == 200
         assert uncheck_res.json()["current_streak"] == 0
+
+
+def test_today_update_and_delete_task():
+    with TestClient(app) as client:
+        auth_res = client.post("/api/v1/auth/demo-login")
+        token = auth_res.json()["access_token"]
+        headers = {"Authorization": f"Bearer {token}"}
+
+        # 1. Create a task
+        create_res = client.post(
+            "/api/v1/today/tasks",
+            json={
+                "title": "Tarea Inicial para Editar",
+                "description": "Detalle original",
+                "priority": 2,
+                "time_block": "10:00 - 11:00",
+            },
+            headers=headers,
+        )
+        assert create_res.status_code == 201
+        task_id = create_res.json()["id"]
+
+        # 2. Update the task
+        update_res = client.patch(
+            f"/api/v1/today/tasks/{task_id}",
+            json={
+                "title": "Tarea Editada y Refinada",
+                "priority": 4,
+                "time_block": "14:00 - 15:30",
+            },
+            headers=headers,
+        )
+        assert update_res.status_code == 200
+        updated = update_res.json()
+        assert updated["title"] == "Tarea Editada y Refinada"
+        assert updated["priority"] == 4
+        assert updated["time_block"] == "14:00 - 15:30"
+        assert updated["description"] == "Detalle original"  # Unchanged
+
+        # 3. Delete the task
+        delete_res = client.delete(f"/api/v1/today/tasks/{task_id}", headers=headers)
+        assert delete_res.status_code == 200
+        assert delete_res.json()["message"] == "Task deleted successfully"
+
+        # 4. Verify 404 on subsequent update
+        missing_res = client.patch(
+            f"/api/v1/today/tasks/{task_id}",
+            json={"title": "Fantasma"},
+            headers=headers,
+        )
+        assert missing_res.status_code == 404

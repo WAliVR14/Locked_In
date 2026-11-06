@@ -43,6 +43,26 @@ def init_db():
             if "target_date" not in goal_cols and len(goal_cols) > 0:
                 conn.execute(text("ALTER TABLE goals ADD COLUMN target_date DATE;"))
 
+            # Check exercises table columns
+            exercise_cols = [
+                row[1] for row in conn.execute(text("PRAGMA table_info(exercises);")).fetchall()
+            ]
+            if len(exercise_cols) > 0:
+                if "workout_id" not in exercise_cols:
+                    conn.execute(text("ALTER TABLE exercises ADD COLUMN workout_id INTEGER;"))
+                if "block_id" not in exercise_cols:
+                    conn.execute(text("ALTER TABLE exercises ADD COLUMN block_id INTEGER;"))
+                if "sets" not in exercise_cols:
+                    conn.execute(text("ALTER TABLE exercises ADD COLUMN sets INTEGER DEFAULT 3;"))
+                if "reps" not in exercise_cols:
+                    conn.execute(text("ALTER TABLE exercises ADD COLUMN reps INTEGER DEFAULT 10;"))
+                if "weight" not in exercise_cols:
+                    conn.execute(text("ALTER TABLE exercises ADD COLUMN weight REAL DEFAULT 0.0;"))
+                if "notes" not in exercise_cols:
+                    conn.execute(text("ALTER TABLE exercises ADD COLUMN notes TEXT;"))
+                if "order_index" not in exercise_cols:
+                    conn.execute(text("ALTER TABLE exercises ADD COLUMN order_index INTEGER DEFAULT 1;"))
+
 
 def get_session():
     with Session(engine) as session:

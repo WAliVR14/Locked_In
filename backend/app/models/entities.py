@@ -185,15 +185,6 @@ class HomeObligation(SQLModel, table=True):
 # =====================================================================
 # 3. BIO, GYM, AND PHYSICAL HEALTH + HUAWEI BAND 7 (OPTION 3)
 # =====================================================================
-class Exercise(SQLModel, table=True):
-    __tablename__ = "exercises"
-    id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: int = Field(foreign_key="users.id", index=True)
-    name: str
-    muscle_group: str = Field(index=True)  # Push, Pull, Legs, Core, Cardio, MMA
-    equipment: str = Field(default="barbell")
-
-
 class WorkoutLog(SQLModel, table=True):
     """Workout session logs (Strength, Cardio, Calisthenics, Flexibility)."""
     __tablename__ = "workout_logs"
@@ -206,6 +197,33 @@ class WorkoutLog(SQLModel, table=True):
     notes: Optional[str] = None
     date: _dt.date = Field(default_factory=_dt.date.today, index=True)
     logged_at: datetime = Field(default_factory=datetime.utcnow, index=True)
+
+
+class WorkoutBlock(SQLModel, table=True):
+    """A logical training block inside a WorkoutLog (e.g. Bloque 1 - Fuerza, Bloque 2 - Accesorios)."""
+    __tablename__ = "workout_blocks"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: int = Field(foreign_key="users.id", index=True)
+    workout_id: int = Field(foreign_key="workout_logs.id", index=True)
+    name: str = Field(default="Bloque 1")
+    block_order: int = Field(default=1)
+
+
+class Exercise(SQLModel, table=True):
+    """Individual exercise inside a WorkoutBlock with sets, reps, weight, and RPE/fatigue notes."""
+    __tablename__ = "exercises"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: int = Field(foreign_key="users.id", index=True)
+    workout_id: Optional[int] = Field(default=None, foreign_key="workout_logs.id", index=True)
+    block_id: Optional[int] = Field(default=None, foreign_key="workout_blocks.id", index=True)
+    name: str
+    muscle_group: Optional[str] = Field(default="General", index=True)  # Push, Pull, Legs, Core, Cardio, General
+    equipment: Optional[str] = Field(default="barbell")
+    sets: int = Field(default=3)
+    reps: int = Field(default=10)
+    weight: float = Field(default=0.0)
+    notes: Optional[str] = None  # Contexto físico/RPE, ej. "me costó subir, sentí tirón"
+    order_index: int = Field(default=1)
 
 
 class HealthMetric(SQLModel, table=True):
